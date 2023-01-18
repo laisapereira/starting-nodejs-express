@@ -25,8 +25,27 @@ Lista de endpoints da aplicação crud de mensagens
 */
 
 const mensagens = [
-  "Essa é a primeira mensagem",
-  "Essa é a segunda mensagem"
+  {
+    "id": 1,
+    "texto": "Essa é a primeira mensagem"
+  },
+  {
+    "id": 2,
+    "texto": "Essa é a segunda mensagem"
+  },
+  {
+    "id": 3,
+    "texto": "Essa é a terceira mensagem"
+  },
+  {
+    "id": 4,
+    "texto": "Essa é a quarta mensagem"
+  },
+  {
+    "id": 5,
+    "texto": "Essa é a quinta mensagem"
+  },
+  
 ]
 
 //-- [GET] /mensagens -- Retorna a lista de mensagens
@@ -40,14 +59,21 @@ app.get('/mensagens/:id', (req,res) => {
   const id = (req.params.id) - 1
   const mensagem = mensagens[id]
 
-  res.send(mensagem)
+  if(!mensagem) {
+    res.send("Mensagem não encontrada.")
+  } res.send(mensagem)
 })
 
 // -- [POST] /mensagens -- cria uma nova mensagem
 
 app.post('/mensagens', (req,res) =>{
-  const mensagem = req.body.mensagem;
+  const mensagem = req.body
 
+  if (!mensagem || !mensagem.texto) { 
+    res.send('Mensagem inválida') 
+  }
+  
+  mensagem.id = mensagens.length + 1;
   mensagens.push(mensagem);
 
   res.send(mensagem)
@@ -58,11 +84,17 @@ app.post('/mensagens', (req,res) =>{
 
 app.put('/mensagens/:id', (req,res) => {
   const id = (req.params.id ) - 1
-  const mensagem = req.body.mensagem
+  const mensagem = mensagens[id]
+  const novoTexto = req.body.texto
+  mensagem.texto = novoTexto
 
-  mensagens[id] = mensagem
 
-  res.send(`Mensagem atualizada com sucesso: '${mensagem}.'`)
+  if (!novoTexto) {
+    res.send('Mensagem inválida')
+  }
+ 
+
+  res.send(mensagem)
 })
 
 
