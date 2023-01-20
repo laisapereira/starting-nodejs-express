@@ -72,16 +72,23 @@ app.get('/mensagens/:id', async(req,res) => {
 
 // -- [POST] /mensagens -- cria uma nova mensagem
 
-app.post('/mensagens', (req,res) =>{
+app.post('/mensagens', async(req,res) =>{
   const mensagem = req.body
 
-  if (!mensagem || !mensagem.texto) { 
+  if (!mensagem 
+    || !mensagem.texto
+    || !mensagem.usuario) { 
     res.send('Mensagem inválida') 
   }
   
-  mensagem.id = mensagens.length + 1;
-  mensagens.push(mensagem);
+ const { insertedCount } = await mensagens.insertOne(mensagem)
+ console.log(insertedCount)
 
+ if (insertedCount !== 1) {
+  res.send('Mensagem não foi criada.')
+
+  return
+ }
   res.send(mensagem)
 })
 
