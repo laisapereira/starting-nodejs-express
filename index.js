@@ -2,11 +2,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 
+
+
 const port = 3000;
 
 app.use(bodyParser.json())
 
 const mongodb = require('mongodb');
+const ObjectId = mongodb.ObjectId;
 
 (async () => {
 
@@ -40,14 +43,13 @@ Lista de endpoints da aplicação crud de mensagens
 const db = client.db ('mensagens_database')
 const mensagens = db.collection('mensagens')
 
-console.log(await mensagens.find({}).toArray())
 
 function getMensagensValidas () {
     return mensagens.find({}).toArray()
 }
 
 function getMensagemById (id) {
-  return getMensagensValidas().find(msg => msg.id === id)
+  return mensagens.findOne({_id: ObjectId(id)})
 
 }
 
@@ -58,10 +60,10 @@ app.get('/mensagens', async(req, res) => {
 
 // -- [GET] /mensagens/{id} -- retorna apenas uma unica mensagem pelo ID
 
-app.get('/mensagens/:id', (req,res) => {
-  const id = (+req.params.id) 
+app.get('/mensagens/:id', async(req,res) => {
+  const id = req.params.id 
 
-  const mensagem = getMensagemById(id)
+  const mensagem = await getMensagemById(id)
 
   if(!mensagem) {
     res.send("Mensagem não encontrada.")
