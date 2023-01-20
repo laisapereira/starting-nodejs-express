@@ -1,12 +1,25 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-
 const app = express()
 
 const port = 3000;
 
 app.use(bodyParser.json())
 
+const mongodb = require('mongodb');
+
+(async () => {
+
+const connectionString = 'mongodb://localhost:27017/mensagens_database' 
+
+const options = { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true 
+}
+
+const client = await mongodb.MongoClient.connect(connectionString, options);
+  
+console.info('Conectando ao banco de dados MongoDB')
 
 app.get('/hello', (req, res) => {
   res.send('Hello World')
@@ -24,32 +37,13 @@ Lista de endpoints da aplicação crud de mensagens
 
 */
 
-const mensagens = [
-  {
-    "id": 1,
-    "texto": "Essa é a primeira mensagem"
-  },
-  {
-    "id": 2,
-    "texto": "Essa é a segunda mensagem"
-  },
-  {
-    "id": 3,
-    "texto": "Essa é a terceira mensagem"
-  },
-  {
-    "id": 4,
-    "texto": "Essa é a quarta mensagem"
-  },
-  {
-    "id": 5,
-    "texto": "Essa é a quinta mensagem"
-  },
-  
-]
+const db = client.db ('mensagens_database')
+const mensagens = db.collection('mensagens')
+
+console.log(await mensagens.find({}).toArray())
 
 function getMensagensValidas () {
-    return mensagens.filter(Boolean)
+    return mensagens.find({}).toArray()
 }
 
 function getMensagemById (id) {
@@ -58,8 +52,8 @@ function getMensagemById (id) {
 }
 
 //-- [GET] /mensagens -- Retorna a lista de mensagens
-app.get('/mensagens', (req, res) => {
-  res.send(getMensagensValidas())
+app.get('/mensagens', async(req, res) => {
+  res.send(await getMensagensValidas())
 })
 
 // -- [GET] /mensagens/{id} -- retorna apenas uma unica mensagem pelo ID
@@ -134,3 +128,5 @@ app.delete('/mensagens/:id', (req,res) => {
 app.listen(port, () => {
   console.info(`App rodando em http://localhost:${port}` )
 })
+
+})();
